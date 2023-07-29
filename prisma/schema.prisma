@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  password      String
+  registered_at DateTime  @default(now())
+  isAdmin       Boolean   @default(false)
+  soft_delete   Boolean   @default(false)
+  Request       Request[]
+
+  @@map("user")
+}
+
+model Product {
+  id          String  @id
+  name        String
+  price       Decimal
+  description String
+  stock       Decimal @default(0)
+  image       String  @default("/image/imagenotfound.png")
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  @@map("product")
+}
+
+model Category {
+  id      String    @id
+  name    String
+  image   String    @default("/image/imagenotfound.png")
+  Product Product[]
+
+  @@map("category")
+}
+
+model Request {
+  id          String         @id
+  number      String
+  total       Decimal
+  status      String
+  description String?
+  createdAt   DateTime       @default(now())
+  client      User           @relation(fields: [clientId], references: [id])
+  clientId    String
+  itens       RequestItens[]
+
+  @@map("request")
+}
+
+model RequestItens {
+  id        String  @id
+  name      String
+  count     Decimal
+  price     Decimal
+  character String?
+  image     String
+  request   Request @relation(fields: [requestId], references: [id])
+  requestId String
+
+  @@map("requestitens")
+}
